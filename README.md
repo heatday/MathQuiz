@@ -1,1 +1,1 @@
-# Daniel Muzo Math Quiz
+#Math Quiz
