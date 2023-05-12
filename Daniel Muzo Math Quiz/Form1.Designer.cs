@@ -1,9 +1,13 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace Daniel_Muzo_Math_Quiz
 {
     partial class Form1
     {
+        private Timer timer;
+        private int timeLeft = 30;
+        private bool gameInProgress = false;
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -17,10 +21,12 @@ namespace Daniel_Muzo_Math_Quiz
         {
             if (disposing && (components != null))
             {
+                timer.Stop();
                 components.Dispose();
             }
             base.Dispose(disposing);
         }
+
 
         #region Windows Form Designer generated code
 
@@ -54,7 +60,11 @@ namespace Daniel_Muzo_Math_Quiz
             this.label9 = new System.Windows.Forms.Label();
             this.quotient = new System.Windows.Forms.NumericUpDown();
             this.startButton = new System.Windows.Forms.Button();
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
             this.labelDate = new System.Windows.Forms.Label();
+            this.timer = new Timer();
+            this.timer.Interval = 1000; // 1 second
+            this.timer.Tick += new System.EventHandler(this.timer_Tick);
             ((System.ComponentModel.ISupportInitialize)(this.sum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.difference)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.product)).BeginInit();
@@ -339,7 +349,110 @@ namespace Daniel_Muzo_Math_Quiz
             this.ResumeLayout(false);
             this.PerformLayout();
 
+
         }
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            
+            StartQuiz();
+            gameInProgress = true;
+            startButton.Enabled = false; // Disable the button
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            if (timeLeft > 0)
+            {
+                timeLeft--;
+                timeLabel.Text = timeLeft + " seconds";
+
+                // Check if answers are correct
+                if (CheckAnswers())
+                {
+                    timer.Stop();
+                    gameInProgress = false;
+                    MessageBox.Show("Congratulations! You answered all the questions correctly.");
+                    startButton.Enabled = true;
+                }
+            }
+            else
+            {
+                timer.Stop();
+                gameInProgress = false;
+                CheckAnswers();
+                MessageBox.Show("You lost!");
+                // Enable the start button
+                startButton.Enabled = true;
+            }
+        }
+
+
+
+
+        private bool CheckAnswers()
+        {
+            // Check the sum
+            int expectedSum = Convert.ToInt32(plusLeftLabel.Text) + Convert.ToInt32(plusRightLabel.Text);
+
+            // Check the difference
+            int expectedDifference = Convert.ToInt32(minusLeftLabel.Text) - Convert.ToInt32(minusRightLabel.Text);
+
+            // Check the product
+            int expectedProduct = Convert.ToInt32(timesLeftLabel.Text) * Convert.ToInt32(timesRightLabel.Text);
+
+            // Check the quotient
+            int expectedQuotient = Convert.ToInt32(dividedLeftLabel.Text) / Convert.ToInt32(dividedRightLabel.Text);
+
+            return (sum.Value == expectedSum && difference.Value == expectedDifference && product.Value == expectedProduct && quotient.Value == expectedQuotient);
+
+
+
+        }
+
+
+
+        private void ShowResults()
+        {
+
+   
+            timeLabel.ForeColor = System.Drawing.Color.Red;
+            timeLabel.Text = "Time Out";
+        }
+
+        private void StartQuiz()
+        {
+            // ... existing code ...
+
+            // Generate random numbers for the math operations
+            Random random = new Random();
+            int num1 = random.Next(51);
+            int num2 = random.Next(51);
+            int num3 = random.Next(1, 11);
+            int num4 = random.Next(1, 11);
+
+            // Assign the random numbers to the labels
+            plusLeftLabel.Text = num1.ToString();
+            plusRightLabel.Text = num2.ToString();
+            minusLeftLabel.Text = num1.ToString();
+            minusRightLabel.Text = num2.ToString();
+            timesLeftLabel.Text = num3.ToString();
+            timesRightLabel.Text = num4.ToString();
+            dividedLeftLabel.Text = (num3 * num4).ToString();
+            dividedRightLabel.Text = num3.ToString();
+
+            // Reset the NumericUpDown controls
+            sum.Value = 0;
+            difference.Value = 0;
+            product.Value = 0;
+            quotient.Value = 0;
+
+            // Start the timer
+            timeLeft = 30;
+            timeLabel.ForeColor = System.Drawing.Color.Black;
+            timeLabel.Text = "30 seconds";
+            timer.Start();
+        }
+
 
         #endregion
 
@@ -369,7 +482,5 @@ namespace Daniel_Muzo_Math_Quiz
         private Label labelDate;
     }
 
-   
- 
-}
 
+}
